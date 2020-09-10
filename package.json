@@ -1,12 +1,8 @@
 {
   "name": "@snapserv/release-it-upstream-version",
   "main": "index.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Version plugin for release-it which extracts an upstream version from a file using RegExp and appends an increasing revision as pre-release",
-  "dependencies": {
-    "release-it": "^14.0.2"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,21 +12,37 @@
   },
   "keywords": [
     "release-it",
+    "release-it-plugin",
     "version",
     "plugin",
-    "upstream",
-    "revision",
     "pattern",
     "regex",
-    "regular",
-    "expression",
+    "regexp",
+    "regular expression",
     "bump",
-    "version"
+    "upstream",
+    "version",
+    "revision"
   ],
-  "author": "Pascal Mathis (https://ppmathis.com/)",
   "license": "GPL-3.0",
+  "author": {
+    "name": "Pascal Mathis",
+    "url": "https://ppmathis.com/"
+  },
+  "homepage": "https://github.com/snapserv/release-it-upstream-version#readme",
   "bugs": {
     "url": "https://github.com/snapserv/release-it-upstream-version/issues"
   },
-  "homepage": "https://github.com/snapserv/release-it-upstream-version#readme"
+  "dependencies": {
+    "semver": "^7.3.2"
+  },
+  "devDependencies": {
+    "release-it": "^14.0.2"
+  },
+  "peerDependencies": {
+    "release-it": "^14.0.2"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
 }
