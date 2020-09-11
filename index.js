@@ -25,7 +25,7 @@ class UpstreamVersionPlugin extends Plugin {
   getIncrementedVersionCI({latestVersion}) {
     // Sanitize latest version
     const latestSemver = this.sanitizeSemVer(latestVersion);
-    this.log.info(`[upstream-version] Sanitized raw version [${latestVersion}] into [${latestSemver}]`);
+    this.log.info(`[upstream-version] Sanitized latest version [${latestVersion}] into [${latestSemver}]`);
 
     // Prepare regular expression for version extraction
     const versionRegexp = new RegExp(this.versionPattern, 'gm');
@@ -44,7 +44,7 @@ class UpstreamVersionPlugin extends Plugin {
     const upstreamVersion = matches.groups.version;
     this.log.info(`[upstream-version] Extracted upstream version from source file: ${upstreamVersion}`);
     const upstreamSemver = this.sanitizeSemVer(upstreamVersion);
-    this.log.info(`[upstream-version] Sanitized raw version [${upstreamVersion}] into [${upstreamSemver}]`);
+    this.log.info(`[upstream-version] Sanitized upstream version [${upstreamVersion}] into [${upstreamSemver}]`);
 
     // Ensure upstream version has no pre-release information
     if (upstreamSemver.prerelease.length) {
@@ -54,7 +54,7 @@ class UpstreamVersionPlugin extends Plugin {
     // Diff latest and upstream version and increment accordingly
     const versionDiff = semver.diff(latestSemver, upstreamSemver);
     const incrementVersion = versionDiff === 'prerelease'
-      ? semver.inc(latestVersion, 'prerelease')
+      ? semver.inc(latestSemver, 'prerelease')
       : semver.clean(`${upstreamSemver.major}.${upstreamSemver.minor}.${upstreamSemver.patch}-${this.defaultRevision}`);
     this.log.info(`[upstream-version] Determined increment version, bumping from ${latestSemver} to ${incrementVersion}`);
 
