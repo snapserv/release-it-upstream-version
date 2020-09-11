@@ -1,7 +1,7 @@
 {
   "name": "@snapserv/release-it-upstream-version",
   "main": "index.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Version plugin for release-it which extracts an upstream version from a file using RegExp and appends an increasing revision as pre-release",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
