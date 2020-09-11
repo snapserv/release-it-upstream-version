@@ -54,7 +54,7 @@ class UpstreamVersionPlugin extends Plugin {
     // Diff latest and upstream version and increment accordingly
     const versionDiff = semver.diff(latestSemver, upstreamSemver);
     const incrementVersion = versionDiff === 'prerelease'
-      ? semver.inc(latestSemver, 'prerelease')
+      ? semver.inc(latestSemver.toString(), 'prerelease')
       : semver.clean(`${upstreamSemver.major}.${upstreamSemver.minor}.${upstreamSemver.patch}-${this.defaultRevision}`);
     this.log.info(`[upstream-version] Determined increment version, bumping from ${latestSemver} to ${incrementVersion}`);
 
