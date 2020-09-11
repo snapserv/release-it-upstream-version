@@ -35,7 +35,7 @@ class UpstreamVersionPlugin extends Plugin {
     }
 
     // Extract upstream version from named capture group
-    const upstreamVersion = matches.groups.version;
+    const upstreamVersion = semver.coerce(matches.groups.version);
     this.log.info(`[upstream-version] Extracted upstream version from source file: ${upstreamVersion}`);
 
     // Ensure upstream version has no pre-release information
