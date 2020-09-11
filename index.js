@@ -2,6 +2,8 @@ const {Plugin} = require('release-it');
 const fs = require('fs');
 const semver = require('semver');
 
+const coerceSemVerRegExp = new RegExp(/(?<major>:0|[1-9]\d*)(?:\.(?<minor>:0|[1-9]\d*))?(?:\.(?<patch>:0|[1-9]\d*))?(?:-(?<prerelease>0|[1-9]\d*|\d*[a-zA-Z-][a-zA-Z0-9-]*))?/);
+
 class UpstreamVersionPlugin extends Plugin {
   init() {
     this.versionFile = this.getContext('versionFile');
@@ -21,6 +23,10 @@ class UpstreamVersionPlugin extends Plugin {
   }
 
   getIncrementedVersionCI({latestVersion}) {
+    // Sanitize latest version
+    const latestSemver = this.sanitizeSemVer(latestVersion);
+    this.log.info(`[upstream-version] Sanitized raw version [${latestVersion}] into [${latestSemver}]`);
+
     // Prepare regular expression for version extraction
     const versionRegexp = new RegExp(this.versionPattern, 'gm');
 
@@ -34,26 +40,46 @@ class UpstreamVersionPlugin extends Plugin {
       throw new Error(`[upstream-version] Could not find named capture group 'version' in pattern: ${this.versionPattern}`);
     }
 
-    // Extract upstream version from named capture group
-    const upstreamVersion = semver.coerce(matches.groups.version);
+    // Extract and sanitize upstream version from named capture group
+    const upstreamVersion = matches.groups.version;
     this.log.info(`[upstream-version] Extracted upstream version from source file: ${upstreamVersion}`);
+    const upstreamSemver = this.sanitizeSemVer(upstreamVersion);
+    this.log.info(`[upstream-version] Sanitized raw version [${upstreamVersion}] into [${upstreamSemver}]`);
 
     // Ensure upstream version has no pre-release information
-    const upstreamPrerelease = semver.prerelease(upstreamVersion);
-    if (upstreamPrerelease) {
-      throw new Error(`[upstream-version] Unable to use upstream version with pre-release specifier for versioning: ${upstreamVersion}`);
+    if (upstreamSemver.prerelease) {
+      throw new Error(`[upstream-version] Unable to use upstream version with pre-release specifier for versioning: ${upstreamSemver}`);
     }
 
     // Diff latest and upstream version and increment accordingly
-    const versionDiff = semver.diff(latestVersion, upstreamVersion);
-    const upstreamSemver = semver.parse(upstreamVersion);
+    const versionDiff = semver.diff(latestSemver, upstreamSemver);
     const incrementVersion = versionDiff === 'prerelease'
       ? semver.inc(latestVersion, 'prerelease')
       : semver.clean(`${upstreamSemver.major}.${upstreamSemver.minor}.${upstreamSemver.patch}-${this.defaultRevision}`);
-    this.log.info(`[upstream-version] Determined increment version, bumping from ${latestVersion} to ${incrementVersion}`);
+    this.log.info(`[upstream-version] Determined increment version, bumping from ${latestSemver} to ${incrementVersion}`);
 
     // Return determined version for increment
     return incrementVersion;
+  }
+
+  sanitizeSemVer(raw) {
+    // If version is already valid semver, return as parsed SemVer instance
+    if (semver.valid(raw)) {
+      return semver.parse(raw);
+    }
+
+    // Extract information using coercion regexp
+    const match = coerceSemVerRegExp.exec(raw);
+    if (!match) {
+      throw new Error(`[upstream-version] Unable to coerce version into semver: ${raw}`);
+    }
+
+    // Coerce using builtin library function, then append prerelease if available
+    const coerced = semver.coerce(raw);
+    const result = match.groups.prerelease ? `${coerced}-${match.groups.prerelease}` : coerced;
+
+    // Return as parsed SemVer instance
+    return semver.parse(result);
   }
 }
 
