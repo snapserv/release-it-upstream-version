@@ -47,7 +47,7 @@ class UpstreamVersionPlugin extends Plugin {
     this.log.info(`[upstream-version] Sanitized raw version [${upstreamVersion}] into [${upstreamSemver}]`);
 
     // Ensure upstream version has no pre-release information
-    if (upstreamSemver.prerelease) {
+    if (upstreamSemver.prerelease.length) {
       throw new Error(`[upstream-version] Unable to use upstream version with pre-release specifier for versioning: ${upstreamSemver}`);
     }
 
